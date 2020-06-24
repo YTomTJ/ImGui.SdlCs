@@ -154,7 +154,7 @@ namespace ImGuiNET.Extensions {
             SetThing(out io.DeltaTime, 2f);
 
             if (_showMemoryEditor) {
-                _memoryEditor.Draw("Memory Editor", _memoryEditorData, _memoryEditorData.Length);
+                _memoryEditor.DrawWindow("Memory Editor", _memoryEditorData, _memoryEditorData.Length);
             }
 
             return true;
