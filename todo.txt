@@ -1,3 +1,2 @@
 1.优化和扩展SDL-GL接口
-2.Texture
-3.支持Controler
+2.检查Internal的结构体成员
