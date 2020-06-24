@@ -7,6 +7,10 @@
     <Description>Merge ImGuiNET (https://github.com/mellinoe/imgui.net) with SDL2-CS (https://github.com/flibitijibibo/SDL2-CS), extend with some useful widgets.
 v1.0.2 Expend enums and structs  from imgui_internal.h.</Description>
     <Version>1.0.2.2</Version>
+    <PackageProjectUrl>https://github.com/YTomTJ/ImGui.SdlCs</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>ImGui, SDL</PackageTags>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,6 +26,10 @@ v1.0.2 Expend enums and structs  from imgui_internal.h.</Description>
     <None Remove="Internal\internal2.cpp" />
     <None Remove="Internal\struct.cpp" />
     <None Remove="Internal\struct2.cpp" />
+    <None Include="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
