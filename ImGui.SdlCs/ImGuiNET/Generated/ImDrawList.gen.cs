@@ -53,7 +53,7 @@ namespace ImGuiNET
         {
             ImGuiNative.ImDrawList_AddBezierCurve(NativePtr, p1, p2, p3, p4, col, thickness, num_segments);
         }
-        public void AddCallback(IntPtr callback, IntPtr callback_data)
+        public void AddCallback(ImDrawCallback callback, IntPtr callback_data)
         {
             void* native_callback_data = (void*)callback_data.ToPointer();
             ImGuiNative.ImDrawList_AddCallback(NativePtr, callback, native_callback_data);

@@ -14,7 +14,7 @@ namespace ImGuiNET
         public ImFont* Font;
         public float FontSize;
         public float FontBaseSize;
-        public IntPtr DrawListSharedData;
+        public ImDrawListSharedData DrawListSharedData;
         public double Time;
         public int FrameCount;
         public int FrameCountEnded;
@@ -201,7 +201,7 @@ namespace ImGuiNET
         public ImFontPtr Font => new ImFontPtr(NativePtr->Font);
         public ref float FontSize => ref Unsafe.AsRef<float>(&NativePtr->FontSize);
         public ref float FontBaseSize => ref Unsafe.AsRef<float>(&NativePtr->FontBaseSize);
-        public ref IntPtr DrawListSharedData => ref Unsafe.AsRef<IntPtr>(&NativePtr->DrawListSharedData);
+        public ref ImDrawListSharedData DrawListSharedData => ref Unsafe.AsRef<ImDrawListSharedData>(&NativePtr->DrawListSharedData);
         public ref double Time => ref Unsafe.AsRef<double>(&NativePtr->Time);
         public ref int FrameCount => ref Unsafe.AsRef<int>(&NativePtr->FrameCount);
         public ref int FrameCountEnded => ref Unsafe.AsRef<int>(&NativePtr->FrameCountEnded);

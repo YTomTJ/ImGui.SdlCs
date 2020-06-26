@@ -2536,7 +2536,7 @@
       },
       {
         "name": "UserCallback",
-        "type": "ImDrawCallback"
+        "type": "IntPtr"
       },
       {
         "name": "UserCallbackData",

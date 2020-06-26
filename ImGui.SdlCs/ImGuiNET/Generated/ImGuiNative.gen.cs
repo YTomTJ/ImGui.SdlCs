@@ -1231,7 +1231,7 @@ namespace ImGuiNET
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImDrawList_AddBezierCurve(ImDrawList* self, Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, uint col, float thickness, int num_segments);
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ImDrawList_AddCallback(ImDrawList* self, IntPtr callback, void* callback_data);
+        public static extern void ImDrawList_AddCallback(ImDrawList* self, ImDrawCallback callback, void* callback_data);
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ImDrawList_AddCircle(ImDrawList* self, Vector2 center, float radius, uint col, int num_segments, float thickness);
         [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
