@@ -76,6 +76,7 @@ namespace ImGuiNET.SDL2CS {
             } else if (mMode == Mode.Single) {
                 ImGui.SetNextWindowPos(new Vector2(0, 0));
                 ImGui.SetNextWindowSize(Size);
+                ImGui.SetNextWindowBgAlpha(0);
                 ImGui.Begin("Overlay", mFlags | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar);
             }
 

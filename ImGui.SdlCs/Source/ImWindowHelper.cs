@@ -78,9 +78,11 @@ namespace ImGuiNET.SDL2CS {
             io.DisplaySize = size;
             io.DisplayFramebufferScale = scale;
 
-            double currentTime = SDL.SDL_GetTicks() / 1000D;
-            io.DeltaTime = g_Time > 0D ? (float)(currentTime - g_Time) : (1f / 60f);
-            g_Time = currentTime;
+            // Setup time step
+            UInt32 current_time = SDL.SDL_GetTicks();
+            var dt = (float)((current_time - g_Time) / 1000.0f);
+            io.DeltaTime = dt > 0 ? dt : (float)(1.0f / 60.0f);
+            g_Time = current_time;
 
             SDL.SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
 

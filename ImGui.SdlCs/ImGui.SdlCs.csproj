@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Authors>YTom</Authors>
     <Description>Merge ImGuiNET (https://github.com/mellinoe/imgui.net) with SDL2-CS (https://github.com/flibitijibibo/SDL2-CS), extend with some useful widgets.</Description>
-    <Version>1.1.1</Version>
+    <Version>1.1.2.3</Version>
     <PackageProjectUrl>https://github.com/YTomTJ/ImGui.SdlCs</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -47,7 +47,10 @@
       <PackagePath>runtimes/win-x64/native</PackagePath>
       <Pack>true</Pack>
     </Content>
-
+    <Content Include="..\lib\cimgui\linux-x64\cimgui.so">
+      <PackagePath>runtimes/linux-x64/native</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Include="build\ImGui.Net.targets">
       <PackagePath>build\ImGui.Net.targets</PackagePath>
       <Pack>true</Pack>
