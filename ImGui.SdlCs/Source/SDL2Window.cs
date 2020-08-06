@@ -62,13 +62,13 @@ namespace ImGuiNET.SDL2CS {
 
         internal Action<SDL2Window> OnLoop;
 
-        public Action<SDL2Window> OnExit;
+        internal Action<SDL2Window> OnExit;
 
         /// <summary>
         /// Event handler.
         /// Return false mean masking default hander.
         /// </summary>
-        internal Action<SDL2Window, SDL.SDL_Event> OnEvent;
+        public Action<SDL2Window, SDL.SDL_Event> OnEvent;
 
         internal SDL2Window(string title, int width, int height, SDL.SDL_WindowFlags flags) {
             SDL2Helper.Initialize();
@@ -93,7 +93,7 @@ namespace ImGuiNET.SDL2CS {
         public void Run() {
             Show();
             IsAlive = true;
-            OnStart(this);
+            OnStart?.Invoke(this);
             while (IsAlive) {
                 //PollEvents
                 SDL.SDL_Event e;

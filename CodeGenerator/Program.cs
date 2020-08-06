@@ -1,101 +1,52 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CodeGenerator {
     internal static class Program {
-        private static readonly Dictionary<string, string> s_wellKnownTypes = new Dictionary<string, string>()
-        {
-            { "bool", "byte" },
-            { "unsigned char", "byte" },
-            { "char", "byte" },
-            { "ImWchar", "ushort" },
-            { "unsigned short", "ushort" },
-            { "unsigned int", "uint" },
-            { "ImVec2", "Vector2" },
-            { "ImVec2_Simple", "Vector2" },
-            { "ImVec3", "Vector3" },
-            { "ImVec4", "Vector4" },
-            { "ImVec4_Simple", "Vector4" },
-            { "ImColor_Simple", "ImColor" },
-            { "ImTextureID", "IntPtr" },
-            { "ImGuiID", "uint" },
-            { "ImDrawIdx", "ushort" },
+        private static readonly Dictionary<string, string> s_wellKnownTypes = new Dictionary<string, string>() { { "bool", "byte" }, { "unsigned char", "byte" }, { "char", "byte" }, { "ImWchar", "ushort" }, { "unsigned short", "ushort" }, { "unsigned int", "uint" }, { "ImVec2", "Vector2" }, { "ImVec2_Simple", "Vector2" }, { "ImVec3", "Vector3" }, { "ImVec4", "Vector4" }, { "ImVec4_Simple", "Vector4" }, { "ImColor_Simple", "ImColor" }, { "ImTextureID", "IntPtr" }, { "ImGuiID", "uint" }, { "ImDrawIdx", "ushort" },
             //{ "ImDrawListSharedData", "IntPtr" },
-            { "ImDrawListSharedData*", "IntPtr" },
-            { "ImU32", "uint" },
+            { "ImDrawListSharedData*", "IntPtr" }, { "ImU32", "uint" },
             //{ "ImDrawCallback", "IntPtr" },
-            { "size_t", "uint" },
-            { "ImGuiContext*", "IntPtr" },
-            { "float[2]", "Vector2*" },
-            { "float[3]", "Vector3*" },
-            { "float[4]", "Vector4*" },
-            { "int[2]", "int*" },
-            { "int[3]", "int*" },
-            { "int[4]", "int*" },
-            { "float&", "float*" },
-            { "ImVec2[2]", "Vector2*" },
-            { "char* []", "byte**" },
-            { "unsigned char[256]", "byte*"},   // YTom
-            { "signed char", "sbyte" },         // YTom
-            { "ImS8", "sbyte" },                // YTom
-            { "ImU8", "byte" },                 // YTom
-            { "ImS16", "Int16" },               // YTom
-            { "ImU16", "UInt16" },              // YTom
-            { "ImS32", "int" },                 // YTom
-            { "ImS64", "Int64" },               // YTom
-            { "ImU64", "UInt64" },              // YTom
-            { "ImFileHandle", "IntPtr" },       // YTom
-            { "ImWchar16", "UInt16" },          // YTom
-            { "ImPoolIdx", "int" },             // YTom
-            { "T*", "IntPtr" },                 // YTom
-            { "ImRect_Simple", "ImRect" },      // YTom
+            { "size_t", "uint" }, { "ImGuiContext*", "IntPtr" }, { "float[2]", "Vector2*" }, { "float[3]", "Vector3*" }, { "float[4]", "Vector4*" }, { "int[2]", "int*" }, { "int[3]", "int*" }, { "int[4]", "int*" }, { "float&", "float*" }, { "ImVec2[2]", "Vector2*" }, { "char* []", "byte**" }, { "unsigned char[256]", "byte*" }, // YTom
+            { "signed char", "sbyte" }, // YTom
+            { "ImS8", "sbyte" }, // YTom
+            { "ImU8", "byte" }, // YTom
+            { "ImS16", "Int16" }, // YTom
+            { "ImU16", "UInt16" }, // YTom
+            { "ImS32", "int" }, // YTom
+            { "ImS64", "Int64" }, // YTom
+            { "ImU64", "UInt64" }, // YTom
+            { "ImFileHandle", "IntPtr" }, // YTom
+            { "ImWchar16", "UInt16" }, // YTom
+            { "ImPoolIdx", "int" }, // YTom
+            { "T*", "IntPtr" }, // YTom
+            { "ImRect_Simple", "ImRect" }, // YTom
         };
 
-        private static readonly Dictionary<string, string> s_wellKnownFieldReplacements = new Dictionary<string, string>()
-        {
-            { "bool", "bool" }, // Force bool to remain as bool in type-safe wrappers.
+        private static readonly Dictionary<string, string> s_wellKnownFieldReplacements = new Dictionary<string, string>() { { "bool", "bool" }, // Force bool to remain as bool in type-safe wrappers.
         };
 
-        private static readonly HashSet<string> s_customDefinedTypes = new HashSet<string>()
-        {
+        private static readonly HashSet<string> s_customDefinedTypes = new HashSet<string>() {
             "ImVector",
             "ImVec2",
             "ImVec4",
             "ImGuiStoragePair",
         };
 
-        private static readonly Dictionary<string, string> s_wellKnownDefaultValues = new Dictionary<string, string>()
-        {
-            { "((void *)0)", "null" },
-            { "((void*)0)", "null" },
-            { "ImVec2(0,0)", "new Vector2()" },
-            { "ImVec2(-1,0)", "new Vector2(-1, 0)" },
-            { "ImVec2(1,0)", "new Vector2(1, 0)" },
-            { "ImVec2(1,1)", "new Vector2(1, 1)" },
-            { "ImVec2(0,1)", "new Vector2(0, 1)" },
-            { "ImVec4(0,0,0,0)", "new Vector4()" },
-            { "ImVec4(1,1,1,1)", "new Vector4(1, 1, 1, 1)" },
-            { "ImDrawCornerFlags_All", "ImDrawCornerFlags.All" },
-            { "FLT_MAX", "float.MaxValue" },
-            { "(((uint)(255)<<24)|((uint)(255)<<16)|((uint)(255)<<8)|((uint)(255)<<0))", "0xFFFFFFFF" }
+        private static readonly Dictionary<string, string> s_wellKnownDefaultValues = new Dictionary<string, string>() { { "((void *)0)", "null" }, { "((void*)0)", "null" }, { "ImVec2(0,0)", "new Vector2()" }, { "ImVec2(-1,0)", "new Vector2(-1, 0)" }, { "ImVec2(1,0)", "new Vector2(1, 0)" }, { "ImVec2(1,1)", "new Vector2(1, 1)" }, { "ImVec2(0,1)", "new Vector2(0, 1)" }, { "ImVec4(0,0,0,0)", "new Vector4()" }, { "ImVec4(1,1,1,1)", "new Vector4(1, 1, 1, 1)" }, { "ImDrawCornerFlags_All", "ImDrawCornerFlags.All" }, { "FLT_MAX", "float.MaxValue" }, { "(((uint)(255)<<24)|((uint)(255)<<16)|((uint)(255)<<8)|((uint)(255)<<0))", "0xFFFFFFFF" }
         };
 
-        private static readonly Dictionary<string, string> s_identifierReplacements = new Dictionary<string, string>()
-        {
-            { "in", "@in" },
-            { "out", "@out" },
-            { "ref", "@ref" },
+        private static readonly Dictionary<string, string> s_identifierReplacements = new Dictionary<string, string>() { { "in", "@in" }, { "out", "@out" }, { "ref", "@ref" },
         };
 
-        private static readonly HashSet<string> s_legalFixedTypes = new HashSet<string>()
-        {
+        private static readonly HashSet<string> s_legalFixedTypes = new HashSet<string>() {
             "byte",
             "sbyte",
             "char",
@@ -109,8 +60,7 @@ namespace CodeGenerator {
             "double",
         };
 
-        private static readonly HashSet<string> s_skippedFunctions = new HashSet<string>()
-        {
+        private static readonly HashSet<string> s_skippedFunctions = new HashSet<string>() {
             "igInputText",
             "igInputTextMultiline"
         };
@@ -125,28 +75,28 @@ namespace CodeGenerator {
             Console.WriteLine($"Outputting generated code files to {outputPath}.");
 
             JObject typesJson;
-            using (StreamReader fs = File.OpenText(Path.Combine(AppContext.BaseDirectory, "structs_and_enums.json")))
-            using (JsonTextReader jr = new JsonTextReader(fs)) {
+            using(StreamReader fs = File.OpenText(Path.Combine(AppContext.BaseDirectory, "structs_and_enums.json")))
+            using(JsonTextReader jr = new JsonTextReader(fs)) {
                 typesJson = JObject.Load(jr);
             }
 
             JObject functionsJson;
-            using (StreamReader fs = File.OpenText(Path.Combine(AppContext.BaseDirectory, "definitions.json")))
-            using (JsonTextReader jr = new JsonTextReader(fs)) {
+            using(StreamReader fs = File.OpenText(Path.Combine(AppContext.BaseDirectory, "definitions.json")))
+            using(JsonTextReader jr = new JsonTextReader(fs)) {
                 functionsJson = JObject.Load(jr);
             }
 
             JObject variantsJson = null;
             if (File.Exists(Path.Combine(AppContext.BaseDirectory, "variants.json"))) {
-                using (StreamReader fs = File.OpenText(Path.Combine(AppContext.BaseDirectory, "variants.json")))
-                using (JsonTextReader jr = new JsonTextReader(fs)) {
+                using(StreamReader fs = File.OpenText(Path.Combine(AppContext.BaseDirectory, "variants.json")))
+                using(JsonTextReader jr = new JsonTextReader(fs)) {
                     variantsJson = JObject.Load(jr);
                 }
             }
 
             Dictionary<string, MethodVariant> variants = new Dictionary<string, MethodVariant>();
             foreach (var jt in variantsJson.Children()) {
-                JProperty jp = (JProperty)jt;
+                JProperty jp = (JProperty) jt;
                 ParameterVariant[] methodVariants = jp.Values().Select(jv => {
                     return new ParameterVariant(jv["name"].ToString(), jv["type"].ToString(), jv["variants"].Select(s => s.ToString()).ToArray());
                 }).ToArray();
@@ -154,7 +104,7 @@ namespace CodeGenerator {
             }
 
             EnumDefinition[] enums = typesJson["enums"].Select(jt => {
-                JProperty jp = (JProperty)jt;
+                JProperty jp = (JProperty) jt;
                 string name = jp.Name;
                 EnumMember[] elements = jp.Values().Select(v => {
                     return new EnumMember(v["name"].ToString(), v["value"].ToString());
@@ -163,7 +113,7 @@ namespace CodeGenerator {
             }).ToArray();
 
             TypeDefinition[] types = typesJson["structs"].Select(jt => {
-                JProperty jp = (JProperty)jt;
+                JProperty jp = (JProperty) jt;
                 string name = jp.Name;
                 TypeReference[] fields = jp.Values().Select(v => {
                     if (v["type"].ToString().Contains("static")) {
@@ -180,7 +130,7 @@ namespace CodeGenerator {
             }).ToArray();
 
             FunctionDefinition[] functions = functionsJson.Children().Select(jt => {
-                JProperty jp = (JProperty)jt;
+                JProperty jp = (JProperty) jt;
                 string name = jp.Name;
 
                 // YTom test
@@ -241,7 +191,7 @@ namespace CodeGenerator {
 
                     Dictionary<string, string> defaultValues = new Dictionary<string, string>();
                     foreach (JToken dv in val["defaults"]) {
-                        JProperty dvProp = (JProperty)dv;
+                        JProperty dvProp = (JProperty) dv;
                         defaultValues.Add(dvProp.Name, dvProp.Value.ToString());
                     }
                     string returnType = val["ret"]?.ToString() ?? "void";
@@ -275,7 +225,7 @@ namespace CodeGenerator {
             }).OrderBy(fd => fd.Name).ToArray();
 
             foreach (EnumDefinition ed in enums) {
-                using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, ed.FriendlyName + ".gen.cs"))) {
+                using(CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, ed.FriendlyName + ".gen.cs"))) {
                     writer.PushBlock("namespace ImGuiNET");
                     if (ed.FriendlyName.Contains("Flags")) {
                         writer.WriteLine("[System.Flags]");
@@ -296,7 +246,7 @@ namespace CodeGenerator {
                     continue;
                 }
 
-                using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, td.Name + ".gen.cs"))) {
+                using(CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, td.Name + ".gen.cs"))) {
                     writer.Using("System");
                     writer.Using("System.Numerics");
                     writer.Using("System.Runtime.CompilerServices");
@@ -342,9 +292,7 @@ namespace CodeGenerator {
                         if (field.ArraySize != 0) {
                             string addrTarget = s_legalFixedTypes.Contains(rawType) ? $"NativePtr->{field.Name}" : $"&NativePtr->{field.Name}_0";
                             writer.WriteLine($"public RangeAccessor<{typeStr}> {field.Name} => new RangeAccessor<{typeStr}>({addrTarget}, {field.ArraySize});");
-                        } 
-                        
-                        else if (typeStr.Contains("ImVector")) {
+                        } else if (typeStr.Contains("ImVector")) {
                             string vectorElementType = GetTypeString(field.TemplateType, false);
 
                             if (s_wellKnownTypes.TryGetValue(vectorElementType, out string wellKnown)) {
@@ -360,8 +308,8 @@ namespace CodeGenerator {
                                 writer.WriteLine($"public ImVector<{vectorElementType}> {field.Name} => new ImVector<{vectorElementType}>(NativePtr->{field.Name});");
                             }
                         }
-                          // YTom
-                          else if (typeStr.Contains("ImPool")) {
+                        // YTom
+                        else if (typeStr.Contains("ImPool")) {
                             string vectorElementType = GetTypeString(field.TemplateType, false);
 
                             if (s_wellKnownTypes.TryGetValue(vectorElementType, out string wellKnown)) {
@@ -377,8 +325,8 @@ namespace CodeGenerator {
                                 writer.WriteLine($"public ImPool<{vectorElementType}> {field.Name} => new ImPool<{vectorElementType}>();");
                             }
                         }
-                          // YTom
-                          else if (typeStr.Contains("ImChunkStream")) {
+                        // YTom
+                        else if (typeStr.Contains("ImChunkStream")) {
                             string vectorElementType = GetTypeString(field.TemplateType, false);
 
                             if (s_wellKnownTypes.TryGetValue(vectorElementType, out string wellKnown)) {
@@ -466,7 +414,7 @@ namespace CodeGenerator {
                 }
             }
 
-            using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, "ImGuiNative.gen.cs"))) {
+            using(CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, "ImGuiNative.gen.cs"))) {
                 writer.Using("System");
                 writer.Using("System.Numerics");
                 writer.Using("System.Runtime.InteropServices");
@@ -516,9 +464,9 @@ namespace CodeGenerator {
                         string parameters = string.Join(", ", paramParts);
 
                         bool isUdtVariant = exportedName.Contains("nonUDT");
-                        string methodName = isUdtVariant
-                            ? exportedName.Substring(0, exportedName.IndexOf("_nonUDT"))
-                            : exportedName;
+                        string methodName = isUdtVariant ?
+                            exportedName.Substring(0, exportedName.IndexOf("_nonUDT")) :
+                            exportedName;
 
                         if (isUdtVariant) {
                             writer.WriteLine($"[DllImport(\"cimgui\", CallingConvention = CallingConvention.Cdecl, EntryPoint = \"{exportedName}\")]");
@@ -533,7 +481,7 @@ namespace CodeGenerator {
                 writer.PopBlock();
             }
 
-            using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, "ImGui.gen.cs"))) {
+            using(CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, "ImGui.gen.cs"))) {
                 writer.Using("System");
                 writer.Using("System.Numerics");
                 writer.Using("System.Runtime.InteropServices");
@@ -603,8 +551,8 @@ namespace CodeGenerator {
         }
 
         private static bool IsStringFieldName(string name) {
-            return Regex.IsMatch(name, ".*Filename.*")
-                || Regex.IsMatch(name, ".*Name");
+            return Regex.IsMatch(name, ".*Filename.*") ||
+                Regex.IsMatch(name, ".*Name");
         }
 
         private static string GetImVectorElementType(string typeStr) {
@@ -764,9 +712,9 @@ namespace CodeGenerator {
                     string nativeArgName = "native_" + tr.Name;
                     marshalledParameters[i] = new MarshalledParameter("IntPtr", false, nativeArgName, false);
                     preCallLines.Add($"{nativePtrTypeName} {nativeArgName} = ({nativePtrTypeName}){correctedIdentifier}.ToPointer();");
-                } else if (GetWrappedType(tr.Type, out string wrappedParamType)
-                      && !s_wellKnownTypes.ContainsKey(tr.Type)
-                      && !s_wellKnownTypes.ContainsKey(tr.Type.Substring(0, tr.Type.Length - 1))) {
+                } else if (GetWrappedType(tr.Type, out string wrappedParamType) &&
+                    !s_wellKnownTypes.ContainsKey(tr.Type) &&
+                    !s_wellKnownTypes.ContainsKey(tr.Type.Substring(0, tr.Type.Length - 1))) {
                     marshalledParameters[i] = new MarshalledParameter(wrappedParamType, false, "native_" + tr.Name, false);
                     string nativeArgName = "native_" + tr.Name;
                     marshalledParameters[i] = new MarshalledParameter(wrappedParamType, false, nativeArgName, false);
@@ -885,7 +833,7 @@ namespace CodeGenerator {
                 int pointerLevel = nativeType.Length - nativeType.IndexOf('*');
                 if (pointerLevel > 1) {
                     wrappedType = null;
-                    return false; // TODO
+                    return false;
                 }
                 string nonPtrType = nativeType.Substring(0, nativeType.Length - pointerLevel);
 
@@ -997,7 +945,8 @@ namespace CodeGenerator {
         }
 
         public bool Used {
-            get; set;
+            get;
+            set;
         }
 
         public ParameterVariant(string name, string originalType, string[] variantTypes) {
@@ -1109,14 +1058,11 @@ namespace CodeGenerator {
             get;
         }
 
-        public TypeReference(string name, string type, EnumDefinition[] enums)
-            : this(name, type, null, enums, null) { }
+        public TypeReference(string name, string type, EnumDefinition[] enums) : this(name, type, null, enums, null) { }
 
-        public TypeReference(string name, string type, EnumDefinition[] enums, string[] typeVariants)
-            : this(name, type, null, enums, typeVariants) { }
+        public TypeReference(string name, string type, EnumDefinition[] enums, string[] typeVariants) : this(name, type, null, enums, typeVariants) { }
 
-        public TypeReference(string name, string type, string templateType, EnumDefinition[] enums)
-            : this(name, type, templateType, enums, null) { }
+        public TypeReference(string name, string type, string templateType, EnumDefinition[] enums) : this(name, type, templateType, enums, null) { }
 
         public TypeReference(string name, string type, string templateType, EnumDefinition[] enums, string[] typeVariants) {
             Name = name;
@@ -1336,7 +1282,8 @@ namespace CodeGenerator {
             get;
         }
         public string PinTarget {
-            get; internal set;
+            get;
+            internal set;
         }
     }
 }

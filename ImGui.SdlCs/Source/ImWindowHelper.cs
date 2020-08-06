@@ -1,9 +1,9 @@
-﻿using SDL2;
-using System;
+﻿using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using SDL2;
 
 namespace ImGuiNET.SDL2CS {
 
@@ -46,25 +46,25 @@ namespace ImGuiNET.SDL2CS {
 
             ImGuiIOPtr io = ImGui.GetIO();
 
-            io.KeyMap[(int)ImGuiKey.Tab] = (int)SDL.SDL_Keycode.SDLK_TAB;
-            io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)SDL.SDL_Scancode.SDL_SCANCODE_LEFT;
-            io.KeyMap[(int)ImGuiKey.RightArrow] = (int)SDL.SDL_Scancode.SDL_SCANCODE_RIGHT;
-            io.KeyMap[(int)ImGuiKey.UpArrow] = (int)SDL.SDL_Scancode.SDL_SCANCODE_UP;
-            io.KeyMap[(int)ImGuiKey.DownArrow] = (int)SDL.SDL_Scancode.SDL_SCANCODE_DOWN;
-            io.KeyMap[(int)ImGuiKey.PageUp] = (int)SDL.SDL_Scancode.SDL_SCANCODE_PAGEUP;
-            io.KeyMap[(int)ImGuiKey.PageDown] = (int)SDL.SDL_Scancode.SDL_SCANCODE_PAGEDOWN;
-            io.KeyMap[(int)ImGuiKey.Home] = (int)SDL.SDL_Scancode.SDL_SCANCODE_HOME;
-            io.KeyMap[(int)ImGuiKey.End] = (int)SDL.SDL_Scancode.SDL_SCANCODE_END;
-            io.KeyMap[(int)ImGuiKey.Delete] = (int)SDL.SDL_Keycode.SDLK_DELETE;
-            io.KeyMap[(int)ImGuiKey.Backspace] = (int)SDL.SDL_Keycode.SDLK_BACKSPACE;
-            io.KeyMap[(int)ImGuiKey.Enter] = (int)SDL.SDL_Keycode.SDLK_RETURN;
-            io.KeyMap[(int)ImGuiKey.Escape] = (int)SDL.SDL_Keycode.SDLK_ESCAPE;
-            io.KeyMap[(int)ImGuiKey.A] = (int)SDL.SDL_Keycode.SDLK_a;
-            io.KeyMap[(int)ImGuiKey.C] = (int)SDL.SDL_Keycode.SDLK_c;
-            io.KeyMap[(int)ImGuiKey.V] = (int)SDL.SDL_Keycode.SDLK_v;
-            io.KeyMap[(int)ImGuiKey.X] = (int)SDL.SDL_Keycode.SDLK_x;
-            io.KeyMap[(int)ImGuiKey.Y] = (int)SDL.SDL_Keycode.SDLK_y;
-            io.KeyMap[(int)ImGuiKey.Z] = (int)SDL.SDL_Keycode.SDLK_z;
+            io.KeyMap[(int) ImGuiKey.Tab] = (int) SDL.SDL_Keycode.SDLK_TAB;
+            io.KeyMap[(int) ImGuiKey.LeftArrow] = (int) SDL.SDL_Scancode.SDL_SCANCODE_LEFT;
+            io.KeyMap[(int) ImGuiKey.RightArrow] = (int) SDL.SDL_Scancode.SDL_SCANCODE_RIGHT;
+            io.KeyMap[(int) ImGuiKey.UpArrow] = (int) SDL.SDL_Scancode.SDL_SCANCODE_UP;
+            io.KeyMap[(int) ImGuiKey.DownArrow] = (int) SDL.SDL_Scancode.SDL_SCANCODE_DOWN;
+            io.KeyMap[(int) ImGuiKey.PageUp] = (int) SDL.SDL_Scancode.SDL_SCANCODE_PAGEUP;
+            io.KeyMap[(int) ImGuiKey.PageDown] = (int) SDL.SDL_Scancode.SDL_SCANCODE_PAGEDOWN;
+            io.KeyMap[(int) ImGuiKey.Home] = (int) SDL.SDL_Scancode.SDL_SCANCODE_HOME;
+            io.KeyMap[(int) ImGuiKey.End] = (int) SDL.SDL_Scancode.SDL_SCANCODE_END;
+            io.KeyMap[(int) ImGuiKey.Delete] = (int) SDL.SDL_Keycode.SDLK_DELETE;
+            io.KeyMap[(int) ImGuiKey.Backspace] = (int) SDL.SDL_Keycode.SDLK_BACKSPACE;
+            io.KeyMap[(int) ImGuiKey.Enter] = (int) SDL.SDL_Keycode.SDLK_RETURN;
+            io.KeyMap[(int) ImGuiKey.Escape] = (int) SDL.SDL_Keycode.SDLK_ESCAPE;
+            io.KeyMap[(int) ImGuiKey.A] = (int) SDL.SDL_Keycode.SDLK_a;
+            io.KeyMap[(int) ImGuiKey.C] = (int) SDL.SDL_Keycode.SDLK_c;
+            io.KeyMap[(int) ImGuiKey.V] = (int) SDL.SDL_Keycode.SDLK_v;
+            io.KeyMap[(int) ImGuiKey.X] = (int) SDL.SDL_Keycode.SDLK_x;
+            io.KeyMap[(int) ImGuiKey.Y] = (int) SDL.SDL_Keycode.SDLK_y;
+            io.KeyMap[(int) ImGuiKey.Z] = (int) SDL.SDL_Keycode.SDLK_z;
 
             io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
 
@@ -80,8 +80,8 @@ namespace ImGuiNET.SDL2CS {
 
             // Setup time step
             UInt32 current_time = SDL.SDL_GetTicks();
-            var dt = (float)((current_time - g_Time) / 1000.0f);
-            io.DeltaTime = dt > 0 ? dt : (float)(1.0f / 60.0f);
+            var dt = (float) ((current_time - g_Time) / 1000.0f);
+            io.DeltaTime = dt > 0 ? dt : (float) (1.0f / 60.0f);
             g_Time = current_time;
 
             SDL.SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
@@ -94,7 +94,7 @@ namespace ImGuiNET.SDL2CS {
         public static void Render(Vector2 size) {
             ImGui.Render();
             if (ImGui.GetIO().RenderDrawListsFnUnused == IntPtr.Zero)
-                RenderDrawData(ImGui.GetDrawData(), (int)Math.Round(size.X), (int)Math.Round(size.Y));
+                RenderDrawData(ImGui.GetDrawData(), (int) Math.Round(size.X), (int) Math.Round(size.Y));
         }
 
         public static unsafe void RenderDrawData(ImDrawDataPtr drawData, int displayW, int displayH) {
@@ -120,7 +120,7 @@ namespace ImGuiNET.SDL2CS {
             GL.EnableClientState(GL.GlEnum.GL_COLOR_ARRAY);
             GL.Enable(GL.GlEnum.GL_TEXTURE_2D);
 
-            GL.UseProgram((uint)lastProgram);
+            GL.UseProgram((uint) lastProgram);
 
             // Handle cases of screen coordinates != from framebuffer coordinates (e.g. retina displays)
             ImGuiIOPtr io = ImGui.GetIO();
@@ -135,8 +135,7 @@ namespace ImGuiNET.SDL2CS {
                 0.0f,
                 io.DisplaySize.X / io.DisplayFramebufferScale.X,
                 io.DisplaySize.Y / io.DisplayFramebufferScale.Y,
-                0.0f,
-                -1.0f,
+                0.0f, -1.0f,
                 1.0f
             );
             GL.MatrixMode(GL.GlEnum.GL_MODELVIEW);
@@ -145,7 +144,7 @@ namespace ImGuiNET.SDL2CS {
 
             // Render command lists
             for (int n = 0; n < drawData.CmdListsCount; n++) {
-                ImDrawListPtr cmdList = new ImDrawListPtr(drawData.NativePtr->CmdLists[n]);
+                ImDrawListPtr cmdList = new ImDrawListPtr(drawData.NativePtr -> CmdLists[n]);
                 var vtxBuffer = cmdList.VtxBuffer;
                 var idxBuffer = cmdList.IdxBuffer;
 
@@ -163,16 +162,16 @@ namespace ImGuiNET.SDL2CS {
                         // TODO: pcmd.UserCallback.Invoke(ref cmdList, ref pcmd);
                         throw new NotImplementedException();
                     } else {
-                        GL.BindTexture(GL.GlEnum.GL_TEXTURE_2D, (int)pcmd.TextureId);
+                        GL.BindTexture(GL.GlEnum.GL_TEXTURE_2D, (int) pcmd.TextureId);
                         GL.Scissor(
-                            (int)pcmd.ClipRect.X,
-                            (int)(io.DisplaySize.Y - pcmd.ClipRect.W),
-                            (int)(pcmd.ClipRect.Z - pcmd.ClipRect.X),
-                            (int)(pcmd.ClipRect.W - pcmd.ClipRect.Y)
+                            (int) pcmd.ClipRect.X,
+                            (int) (io.DisplaySize.Y - pcmd.ClipRect.W),
+                            (int) (pcmd.ClipRect.Z - pcmd.ClipRect.X),
+                            (int) (pcmd.ClipRect.W - pcmd.ClipRect.Y)
                         );
-                        GL.DrawElements(GL.GlEnum.GL_TRIANGLES, (int)pcmd.ElemCount, GL.GlEnum.GL_UNSIGNED_SHORT, new IntPtr((long)idxBuffer.Data + idxBufferOffset));
+                        GL.DrawElements(GL.GlEnum.GL_TRIANGLES, (int) pcmd.ElemCount, GL.GlEnum.GL_UNSIGNED_SHORT, new IntPtr((long) idxBuffer.Data + idxBufferOffset));
                     }
-                    idxBufferOffset += pcmd.ElemCount * 2 /*sizeof(ushort)*/;
+                    idxBufferOffset += pcmd.ElemCount * 2 /*sizeof(ushort)*/ ;
                 }
             }
 
@@ -225,19 +224,30 @@ namespace ImGuiNET.SDL2CS {
                     io.MousePos = new Vector2(e.motion.x, e.motion.y);
                     return true;
 
-                #endregion MouseEvent
+                    #endregion MouseEvent
 
-                #region KeyEvent
+                    #region KeyEvent
                 case SDL.SDL_EventType.SDL_TEXTINPUT:
                     unsafe {
                         // THIS IS THE ONLY UNSAFE THING LEFT!
-                        io.AddInputCharactersUTF8(new string((char*)e.text.text));
+                        int i = 0;
+                        var b = e.text.text;
+                        char[] str = new char[SDL.SDL_TEXTINPUTEVENT_TEXT_SIZE + 1];
+                        while(*b != '\0' && i < str.Length - 1) {
+                            str[i++] = (char)*b;
+                            b++;
+                            i++;
+                        }
+                        str[i] = '\0';
+
+                        // io.AddInputCharactersUTF8(new string((char * ) e.text.text));
+                        io.AddInputCharactersUTF8(new string(str));
                     }
                     return true;
 
                 case SDL.SDL_EventType.SDL_KEYDOWN:
                 case SDL.SDL_EventType.SDL_KEYUP:
-                    int key = (int)e.key.keysym.sym & ~SDL.SDLK_SCANCODE_MASK;
+                    int key = (int) e.key.keysym.sym & ~SDL.SDLK_SCANCODE_MASK;
                     io.KeysDown[key] = e.type == SDL.SDL_EventType.SDL_KEYDOWN;
                     SDL.SDL_Keymod keyModState = SDL.SDL_GetModState();
                     io.KeyShift = (keyModState & SDL.SDL_Keymod.KMOD_SHIFT) != 0;
@@ -246,9 +256,9 @@ namespace ImGuiNET.SDL2CS {
                     io.KeySuper = (keyModState & SDL.SDL_Keymod.KMOD_GUI) != 0;
                     break;
 
-                #endregion KeyEvent
+                    #endregion KeyEvent
 
-                #region GamepadEvent
+                    #region GamepadEvent
 
                 case SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED:
                     io.BackendFlags |= ImGuiBackendFlags.HasGamepad;
@@ -305,22 +315,22 @@ namespace ImGuiNET.SDL2CS {
         public static void UpdateGamepads() {
             if (IsGamepadEnable) {
                 InitGamepads();
-                MAP_BUTTON((int)ImGuiNavInput.Activate, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A);                  // Cross / A
-                MAP_BUTTON((int)ImGuiNavInput.Cancel, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B);                    // Circle / B
-                MAP_BUTTON((int)ImGuiNavInput.Menu, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X);                      // Square / X
-                MAP_BUTTON((int)ImGuiNavInput.Input, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y);                     // Triangle / Y
-                MAP_BUTTON((int)ImGuiNavInput.DpadLeft, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT);          // D-Pad Left
-                MAP_BUTTON((int)ImGuiNavInput.DpadRight, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT);        // D-Pad Right
-                MAP_BUTTON((int)ImGuiNavInput.DpadUp, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP);              // D-Pad Up
-                MAP_BUTTON((int)ImGuiNavInput.DpadDown, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN);          // D-Pad Down
-                MAP_BUTTON((int)ImGuiNavInput.FocusPrev, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER);      // L1 / LB
-                MAP_BUTTON((int)ImGuiNavInput.FocusNext, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);     // R1 / RB
-                MAP_BUTTON((int)ImGuiNavInput.TweakSlow, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER);      // L1 / LB
-                MAP_BUTTON((int)ImGuiNavInput.TweakFast, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);     // R1 / RB
-                MAP_ANALOG((int)ImGuiNavInput.LStickLeft, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, -thumb_dead_zone, -32768);
-                MAP_ANALOG((int)ImGuiNavInput.LStickRight, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, +thumb_dead_zone, +32767);
-                MAP_ANALOG((int)ImGuiNavInput.LStickUp, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, -thumb_dead_zone, -32767);
-                MAP_ANALOG((int)ImGuiNavInput.LStickDown, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY, +thumb_dead_zone, +32767);
+                MAP_BUTTON((int) ImGuiNavInput.Activate, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A); // Cross / A
+                MAP_BUTTON((int) ImGuiNavInput.Cancel, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B); // Circle / B
+                MAP_BUTTON((int) ImGuiNavInput.Menu, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X); // Square / X
+                MAP_BUTTON((int) ImGuiNavInput.Input, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y); // Triangle / Y
+                MAP_BUTTON((int) ImGuiNavInput.DpadLeft, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT); // D-Pad Left
+                MAP_BUTTON((int) ImGuiNavInput.DpadRight, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT); // D-Pad Right
+                MAP_BUTTON((int) ImGuiNavInput.DpadUp, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP); // D-Pad Up
+                MAP_BUTTON((int) ImGuiNavInput.DpadDown, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN); // D-Pad Down
+                MAP_BUTTON((int) ImGuiNavInput.FocusPrev, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER); // L1 / LB
+                MAP_BUTTON((int) ImGuiNavInput.FocusNext, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); // R1 / RB
+                MAP_BUTTON((int) ImGuiNavInput.TweakSlow, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER); // L1 / LB
+                MAP_BUTTON((int) ImGuiNavInput.TweakFast, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); // R1 / RB
+                MAP_ANALOG((int) ImGuiNavInput.LStickLeft, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, -thumb_dead_zone, -32768);
+                MAP_ANALOG((int) ImGuiNavInput.LStickRight, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, +thumb_dead_zone, +32767);
+                MAP_ANALOG((int) ImGuiNavInput.LStickUp, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, -thumb_dead_zone, -32767);
+                MAP_ANALOG((int) ImGuiNavInput.LStickDown, SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY, +thumb_dead_zone, +32767);
             } else {
                 CloseGamepads();
                 NavClear();
@@ -342,7 +352,7 @@ namespace ImGuiNET.SDL2CS {
 
         private static void MAP_ANALOG(int nav, SDL.SDL_GameControllerAxis axis, int v0, int v1) {
             var io = ImGui.GetIO();
-            float vn = (float)(SDL.SDL_GameControllerGetAxis(g_Controller, axis) - v0) / (float)(v1 - v0);
+            float vn = (float) (SDL.SDL_GameControllerGetAxis(g_Controller, axis) - v0) / (float) (v1 - v0);
             if (vn > 1.0f)
                 vn = 1.0f;
             if (vn > 0.0f && io.NavInputs[nav] < vn)

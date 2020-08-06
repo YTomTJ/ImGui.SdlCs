@@ -12,6 +12,8 @@ using PerfCopy;
 // - Arrows are being sent to the InputText() about to disappear which for LeftArrow makes the text cursor appear at position 1 for one frame.
 // - Using InputText() is awkward and maybe overkill here, consider implementing something custom.
 
+// FIXME: Short memory length may cause exception.
+
 namespace ImGuiNET.Extensions {
 
     unsafe public class MemoryEditor {
@@ -90,7 +92,7 @@ namespace ImGuiNET.Extensions {
 
             // State/Internals
             ContentsWidthChanged = false;
-            DataPreviewAddr = DataEditingAddr = (int)-1;
+            DataPreviewAddr = DataEditingAddr = (int)0;
             DataEditingTakeFocus = false;
             for (int i = 0; i < DataInputBuf.Length; ++i) {
                 DataInputBuf[i] = 0;
@@ -396,7 +398,6 @@ namespace ImGuiNET.Extensions {
             if (GotoAddr != (int)-1) {
                 if (GotoAddr < mem_size) {
                     ImGui.BeginChild("##scrolling");
-
                     ImGui.SetScrollFromPosY(ImGui.GetCursorStartPos().Y + (GotoAddr / Cols) * ImGui.GetTextLineHeight());
                     ImGui.EndChild();
                     DataEditingAddr = DataPreviewAddr = GotoAddr;
