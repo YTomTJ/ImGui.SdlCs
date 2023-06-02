@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>YTom</Authors>
     <Description>Merge ImGuiNET (https://github.com/mellinoe/imgui.net) with SDL2-CS (https://github.com/flibitijibibo/SDL2-CS), extend with some useful widgets.</Description>
-    <Version>1.1.2.8</Version>
+    <Version>1.1.3</Version>
     <PackageProjectUrl>https://github.com/YTomTJ/ImGui.SdlCs</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -22,9 +22,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ImGuiNET\del\**" />
-    <EmbeddedResource Remove="ImGuiNET\del\**" />
-    <None Remove="ImGuiNET\del\**" />
+    <Compile Remove="Ext\**" />
+    <EmbeddedResource Remove="Ext\**" />
+    <None Remove="Ext\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -36,19 +39,25 @@
     <None Remove="Internal\internal2.cpp" />
     <None Remove="Internal\struct.cpp" />
     <None Remove="Internal\struct2.cpp" />
+    <None Remove="libSDL2.so" />
+    <None Remove="SDL2.dll" />
   </ItemGroup>
   
   <ItemGroup>
-    <Content Include="..\lib\cimgui\win-x86\cimgui.dll">
+    <Content Include="..\ImGui.NET\deps\cimgui\win-x86\cimgui.dll">
       <PackagePath>runtimes/win-x86/native</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Include="..\lib\cimgui\win-x64\cimgui.dll">
+    <Content Include="..\ImGui.NET\deps\cimgui\win-x64\cimgui.dll">
       <PackagePath>runtimes/win-x64/native</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Include="..\lib\cimgui\linux-x64\cimgui.so">
+    <Content Include="..\ImGui.NET\deps\cimgui\linux-x64\cimgui.so">
       <PackagePath>runtimes/linux-x64/native</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="..\ImGui.NET\deps\cimgui\osx\cimgui.dylib">
+      <PackagePath>runtimes/osx-x64/native</PackagePath>
       <Pack>true</Pack>
     </Content>
     <Content Include="build\ImGui.Net.targets">
@@ -58,19 +67,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\lib\sdl2\win-x86\SDL2.dll">
+    <Content Include="..\deps\sdl2\win-x86\SDL2.dll">
       <PackagePath>runtimes/win-x86/native</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Include="..\lib\sdl2\win-x64\SDL2.dll">
+    <Content Include="..\deps\sdl2\win-x64\SDL2.dll">
       <PackagePath>runtimes/win-x64/native</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Include="..\lib\sdl2\linux-x64\libSDL2.so">
+    <Content Include="..\deps\sdl2\linux-x64\libSDL2.so">
       <PackagePath>runtimes/linux-x64/native</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Include="..\lib\sdl2\osx-x64\libSDL2.dylib">
+    <Content Include="..\deps\sdl2\osx-x64\libSDL2.dylib">
       <PackagePath>runtimes/osx-x64/native</PackagePath>
       <Pack>true</Pack>
     </Content>
@@ -78,6 +87,10 @@
       <PackagePath>build\ImGui.SdlCs.targets</PackagePath>
       <Pack>true</Pack>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImGui.NET\src\ImGui.NET\ImGui.NET.csproj" />
   </ItemGroup>
 
 </Project>

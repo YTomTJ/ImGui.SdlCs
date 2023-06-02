@@ -1,0 +1,6 @@
+[submodule "ImGui.NET"]
+	path = ImGui.NET
+	url = https://github.com/ImGuiNET/ImGui.NET
+[submodule "SDL2-CS"]
+	path = SDL2-CS
+	url = https://github.com/flibitijibibo/SDL2-CS
