@@ -93,7 +93,7 @@ namespace ImGuiNET.SDL2CS {
 
         public static void Render(Vector2 size) {
             ImGui.Render();
-            if (ImGui.GetIO().RenderDrawListsFnUnused == IntPtr.Zero)
+            if (ImGui.GetIO()._UnusedPadding == IntPtr.Zero)
                 RenderDrawData(ImGui.GetDrawData(), (int) Math.Round(size.X), (int) Math.Round(size.Y));
         }
 
