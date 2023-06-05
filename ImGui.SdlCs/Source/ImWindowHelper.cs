@@ -230,18 +230,8 @@ namespace ImGuiNET.SDL2CS {
                 case SDL.SDL_EventType.SDL_TEXTINPUT:
                     unsafe {
                         // THIS IS THE ONLY UNSAFE THING LEFT!
-                        int i = 0;
-                        var b = e.text.text;
-                        char[] str = new char[SDL.SDL_TEXTINPUTEVENT_TEXT_SIZE + 1];
-                        while(*b != '\0' && i < str.Length - 1) {
-                            str[i++] = (char)*b;
-                            b++;
-                            i++;
-                        }
-                        str[i] = '\0';
-
-                        // io.AddInputCharactersUTF8(new string((char * ) e.text.text));
-                        io.AddInputCharactersUTF8(new string(str));
+                        var str = Marshal.PtrToStringUTF8(new IntPtr(e.text.text));
+                        io.AddInputCharactersUTF8(str);
                     }
                     return true;
 

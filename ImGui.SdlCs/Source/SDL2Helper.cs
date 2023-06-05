@@ -11,8 +11,7 @@ namespace ImGuiNET.SDL2CS {
                 return;
             _Initialized = true;
 
-            SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_TIMER | SDL.SDL_INIT_GAMECONTROLLER);
-            //SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
+            SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
 
             SetGLAttributes();
         }
