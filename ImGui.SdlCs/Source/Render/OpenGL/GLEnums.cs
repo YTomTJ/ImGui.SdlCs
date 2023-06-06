@@ -1,4 +1,4 @@
-namespace ImGuiNET.SDL2CS {
+namespace ImGuiExt.OpenGL {
 
     public unsafe static partial class GL {
 

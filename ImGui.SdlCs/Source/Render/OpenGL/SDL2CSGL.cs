@@ -1,8 +1,8 @@
-﻿using SDL2;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
+using SDLCS = SDL2.SDL;
 
-namespace ImGuiNET.SDL2CS {
+namespace ImGuiExt.OpenGL {
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Int4 {
@@ -12,13 +12,14 @@ namespace ImGuiNET.SDL2CS {
     // Even smaller than MiniTK, only offering the bare minimum required for ImGuiSDL2CS.
     public unsafe static partial class GL {
 
-        private static T _<T>() where T : class {
+        private static T _<T>() where T : class
+        {
             string name = typeof(T).Name;
             int indexOfSplit = name.IndexOf("__");
-            if (indexOfSplit != -1)
+            if(indexOfSplit != -1)
                 name = name.Substring(0, indexOfSplit);
-            IntPtr ptr = SDL.SDL_GL_GetProcAddress(name);
-            if (ptr == IntPtr.Zero)
+            IntPtr ptr = SDLCS.SDL_GL_GetProcAddress(name);
+            if(ptr == IntPtr.Zero)
                 return null;
             return Marshal.GetDelegateForFunctionPointer(ptr, typeof(T)) as T;
         }

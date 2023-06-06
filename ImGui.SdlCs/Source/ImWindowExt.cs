@@ -1,6 +1,7 @@
-﻿using System.Numerics;
+﻿using ImGuiNET;
+using System.Numerics;
 
-namespace ImGuiNET.SDL2CS {
+namespace ImGuiExt {
 
     /// <summary>
     /// Extended ImWindowBase with easy interface.
