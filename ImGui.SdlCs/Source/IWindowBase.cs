@@ -17,7 +17,15 @@ namespace ImGuiExt {
 
         internal abstract void Render();
 
+        internal abstract bool CreateFontsTexture();
+
+        internal abstract void DeleteFontsTexture();
+
         internal abstract void OnEventHander(IWindow<E> window, E e);
+
+        internal abstract IntPtr Renderer { get; set; }
+
+        public abstract IntPtr FontTexture { get; set; }
 
         //---------------------------------------------------------------------
 
@@ -34,6 +42,9 @@ namespace ImGuiExt {
         {
             Wnd.Run();
         }
+
+        //public double Time { get; private set; } = 0.0f;
+        public ulong uTime { get; private set; } = 0;
 
         //---------------------------------------------------------------------
 
@@ -57,9 +68,6 @@ namespace ImGuiExt {
                 }
             }
         }
-
-        internal double g_Time = 0.0f;
-        internal int g_FontTexture = 0;
 
         public delegate bool LayoutUpdateMethod();
 
@@ -87,11 +95,43 @@ namespace ImGuiExt {
 
         private void OnLoopHandler(IWindow<E> window)
         {
-            SDL2Helper.NewFrame(Wnd.Size, Vector2.One, ref g_Time);
+            RendererNewFrame();
+            ImGui.NewFrame();
             UpdateLayout();
             ImGui.Render();
-
             Render();
+        }
+
+        private void RendererNewFrame()
+        {
+            if(FontTexture == IntPtr.Zero)
+                CreateFontsTexture();
+
+            ImGuiIOPtr io = ImGui.GetIO();
+            SDLCS.SDL_GetWindowSize(Wnd.Window, out int w, out int h);
+            if((SDLCS.SDL_GetWindowFlags(Wnd.Window) & (uint)SDLCS.SDL_WindowFlags.SDL_WINDOW_MINIMIZED) > 0)
+                w = h = 0;
+            int display_w, display_h;
+            if(Renderer != IntPtr.Zero)
+                SDLCS.SDL_GetRendererOutputSize(Renderer, out display_w, out display_h);
+            else
+                SDLCS.SDL_GL_GetDrawableSize(Wnd.Window, out display_w, out display_h);
+            io.DisplaySize = new Vector2((float)w, (float)h);
+            if(w > 0 && h > 0)
+                io.DisplayFramebufferScale = new Vector2(1.0f * display_w / w, 1.0f * display_h / h);
+
+            // Setup time step
+            ulong current_time = SDLCS.SDL_GetPerformanceCounter();
+            ulong frequency = SDLCS.SDL_GetPerformanceFrequency();
+            if(current_time <= uTime)
+                current_time = uTime + 1;
+            io.DeltaTime = uTime > 0 ? (float)((double)(current_time - uTime) / frequency) : (float)(1.0f / 60.0f);
+            uTime = current_time;
+
+            SDLCS.SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
+
+            // TODO:
+            SDL2Helper.UpdateGamepads();
         }
 
         ~IWindowBase()
@@ -99,12 +139,12 @@ namespace ImGuiExt {
             ImGuiIOPtr io = ImGui.GetIO();
             // Free unmanaged resources (unmanaged objects) and override a finalizer below.
             // Set large fields to null.
-            if(g_FontTexture != 0) {
+            if(FontTexture != IntPtr.Zero) {
                 // Texture gets deleted with the context.
-                // GL.DeleteTexture(g_FontTexture);
-                if((int)io.Fonts.TexID == g_FontTexture)
+                DeleteFontsTexture();
+                if(io.Fonts.TexID == FontTexture)
                     io.Fonts.TexID = IntPtr.Zero;
-                g_FontTexture = 0;
+                FontTexture = IntPtr.Zero;
             }
             Wnd.Dispose();
         }

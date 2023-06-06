@@ -1,6 +1,7 @@
 ﻿using SDL2;
 using System;
 using System.Numerics;
+using static SDL2.SDL;
 using SDLCS = SDL2.SDL;
 
 namespace ImGuiExt.SDL {
@@ -80,11 +81,10 @@ namespace ImGuiExt.SDL {
 
         public void Run()
         {
-            Show();
             IsAlive = true;
             OnStart?.Invoke(this);
             while(IsAlive) {
-                //PollEvents
+                // PollEvents
                 SDLCS.SDL_Event e;
                 while(SDLCS.SDL_PollEvent(out e) != 0) {
                     if(e.type == SDLCS.SDL_EventType.SDL_QUIT)
@@ -95,11 +95,6 @@ namespace ImGuiExt.SDL {
                 OnLoop?.Invoke(this);
             }
             OnExit?.Invoke(this);
-        }
-
-        public void Swap()
-        {
-            SDLCS.SDL_GL_SwapWindow(Window);
         }
 
         public void Exit()

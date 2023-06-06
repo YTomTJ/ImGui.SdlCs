@@ -110,6 +110,10 @@ namespace ImGuiExt.OpenGL {
 
         public static glBindTexture BindTexture = _<glBindTexture>();
 
+        public delegate void glDeleteTexture(int n, IntPtr texture);
+
+        public static glDeleteTexture DeleteTexture = _<glDeleteTexture>();
+
         public delegate void glScissor(int x, int y, int width, int height);
 
         public static glScissor Scissor = _<glScissor>();

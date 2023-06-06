@@ -34,8 +34,6 @@ namespace ImGuiExt.SDL {
 
         public void Run();
 
-        public void Swap();
-
         public void Exit();
 
         public void Dispose();

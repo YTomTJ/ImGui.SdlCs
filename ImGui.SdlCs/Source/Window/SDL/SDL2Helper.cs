@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using ImGuiNET;
+using static SDL2.SDL;
 using SDLCS = SDL2.SDL;
 
 namespace ImGuiExt {
@@ -40,13 +41,16 @@ namespace ImGuiExt {
             }
         }
 
-        public static void Initialize()
+        public static void Initialize(IntPtr window)
         {
             if(IsInitialized)
                 return;
             IsInitialized = true;
 
             ImGuiIOPtr io = ImGui.GetIO();
+            io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
+            io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+
             io.KeyMap[(int)ImGuiKey.Tab] = (int)SDLCS.SDL_Keycode.SDLK_TAB;
             io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)SDLCS.SDL_Scancode.SDL_SCANCODE_LEFT;
             io.KeyMap[(int)ImGuiKey.RightArrow] = (int)SDLCS.SDL_Scancode.SDL_SCANCODE_RIGHT;
@@ -67,38 +71,26 @@ namespace ImGuiExt {
             io.KeyMap[(int)ImGuiKey.Y] = (int)SDLCS.SDL_Keycode.SDLK_y;
             io.KeyMap[(int)ImGuiKey.Z] = (int)SDLCS.SDL_Keycode.SDLK_z;
 
-            io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
-            io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+            io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;       // We can honor GetMouseCursor() values (optional)
+            io.BackendFlags |= ImGuiBackendFlags.HasSetMousePos;        // We can honor io.WantSetMousePos requests (optional, rarely used)
 
             //io.SetClipboardTextFn = SDL2Helper.SetClipboardText;
             //io.GetClipboardTextFn = SDL2Helper.GetClipboardText;
             //io.ClipboardUserData = null;
             //io.SetPlatformImeDataFn = SDL2Helper.SetPlatformImeData;
 
+
+            // Set platform dependent data in viewport
+            // Our mouse update function expect PlatformHandle to be filled for the main viewport
+            var viewport = ImGui.GetMainViewport();
+            viewport.PlatformHandleRaw = IntPtr.Zero;
+            var wminfo = new SDL_SysWMinfo();
+            SDL_VERSION(out wminfo.version);
+            if(SDL_GetWindowWMInfo(window, ref wminfo) == SDL_bool.SDL_TRUE) {
+                viewport.PlatformHandleRaw = wminfo.info.win.window;
+            }
+
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
-
-            // If no font added, add default font.
-            if(io.Fonts.Fonts.Size == 0)
-                io.Fonts.AddFontDefault();
-        }
-
-        public static void NewFrame(Vector2 size, Vector2 scale, ref double g_Time)
-        {
-            ImGuiIOPtr io = ImGui.GetIO();
-            io.DisplaySize = size;
-            io.DisplayFramebufferScale = scale;
-
-            // Setup time step
-            UInt32 current_time = SDLCS.SDL_GetTicks();
-            var dt = (float)((current_time - g_Time) / 1000.0f);
-            io.DeltaTime = dt > 0 ? dt : (float)(1.0f / 60.0f);
-            g_Time = current_time;
-
-            SDLCS.SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
-
-            SDL2Helper.UpdateGamepads();
-
-            ImGui.NewFrame();
         }
 
         public static bool EventHandler(SDLCS.SDL_Event e)

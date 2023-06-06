@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ImGuiExt.OpenGL;
+using System.Security.Cryptography;
 using ImGuiExt.SDL;
 using ImGuiNET;
-using static SDL2.SDL;
 using SDLCS = SDL2.SDL;
 
 namespace ImGuiExt {
@@ -14,11 +15,13 @@ namespace ImGuiExt {
     /// </summary>
     public class SDL2_SdlRenderer_Window : IWindowBase<SDLCS.SDL_Event> {
 
-        private IntPtr Renderer;
+        internal override IntPtr Renderer { get; set; }
+        public override IntPtr FontTexture { get; set; }
 
         public SDL2_SdlRenderer_Window(string title = "SDL2_SdlRenderer_Window", int width = 1280, int height = 760)
         {
-            var flags = SDLCS.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDLCS.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
+            //set the gl version to be loaded
+            var flags = SDLCS.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDLCS.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI | SDLCS.SDL_WindowFlags.SDL_WINDOW_OPENGL;
             Wnd = new SDL2Window(title, width, height, flags);
 
             // Create SDL_Renderer graphics context
@@ -26,45 +29,16 @@ namespace ImGuiExt {
             if(Renderer == IntPtr.Zero) {
                 throw new Exception("Error creating SDL_Renderer!");
             }
+            SDLCS.SDL_GetRendererInfo(Renderer, out SDLCS.SDL_RendererInfo info);
+            Debug.WriteLine(string.Format("Current SDL_Renderer: {0}", Marshal.PtrToStringAnsi(info.name)));
 
             ImGui.CreateContext();
-            SDL2Helper.Initialize();
-
-            var fonts = ImGui.GetIO().Fonts;
-            unsafe {
-                fonts.GetTexDataAsRGBA32(out byte* pixelData, out int texwidth, out int texheight);
-                fonts.TexID = LoadTexture((IntPtr)pixelData, texwidth, texheight);
-                fonts.ClearTexData();
-            }
-
+            SDL2Helper.Initialize(Wnd.Window);
             base.Initialize();
-        }
-
-        private IntPtr LoadTexture(IntPtr pixelData, int width, int height)
-        {
-            var texture = SDL_CreateTexture(Renderer, SDL_PIXELFORMAT_ABGR8888, 0, width, height);
-            SDL_Rect rect = new SDL_Rect {
-                x = 0,
-                y = 0,
-                w = width,
-                h = height,
-            };
-            SDL_UpdateTexture(texture, ref rect, pixelData, 4 * width);
-            SDL_SetTextureBlendMode(texture, SDL_BlendMode.SDL_BLENDMODE_BLEND);
-            return texture;
         }
 
         internal override unsafe void Create()
         {
-            // Setup display size (every frame to accommodate for window resizing)
-            SDL_GetWindowSize(Wnd.Window, out int w, out int h);
-            if((SDL_GetWindowFlags(Wnd.Window) & (uint)SDLCS.SDL_WindowFlags.SDL_WINDOW_MINIMIZED) > 0) {
-                w = h = 0;
-            }
-            if(Renderer != IntPtr.Zero)
-                SDL_GetRendererOutputSize(Renderer, out int display_w, out int display_h);
-            else
-                SDL_GL_GetDrawableSize(Wnd.Window, out int display_w, out int display_h);
         }
 
         internal override void Render()
@@ -77,6 +51,43 @@ namespace ImGuiExt {
             SDLCS.SDL_RenderClear(Renderer);
             RenderDrawData(ImGui.GetDrawData());
             SDLCS.SDL_RenderPresent(Renderer);
+        }
+
+        internal override bool CreateFontsTexture()
+        {
+            var io = ImGui.GetIO();
+            var fonts = io.Fonts;
+
+            // Build texture atlas
+            // Load as RGBA 32-bit (75% of the memory is wasted, but default font is so small) because it is more
+            // likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level
+            // concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+            fonts.GetTexDataAsRGBA32(out IntPtr pixels, out int width, out int height);
+
+            // Upload texture to graphics system
+            // (Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines'
+            // or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling)
+            FontTexture = SDLCS.SDL_CreateTexture(Renderer, SDLCS.SDL_PIXELFORMAT_ABGR8888,
+                (int)SDLCS.SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC, width, height);
+            if(FontTexture == IntPtr.Zero) {
+                throw new Exception("Error creating texture.");
+            }
+            SDLCS.SDL_UpdateTexture(FontTexture, IntPtr.Zero, pixels, 4 * width);
+            SDLCS.SDL_SetTextureBlendMode(FontTexture, SDLCS.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+            SDLCS.SDL_SetTextureScaleMode(FontTexture, SDLCS.SDL_ScaleMode.SDL_ScaleModeLinear);
+            // Store our identifier
+            io.Fonts.SetTexID(FontTexture);
+            return true;
+        }
+
+        internal override void DeleteFontsTexture()
+        {
+            SDLCS.SDL_DestroyTexture(FontTexture);
+        }
+
+        internal override void OnEventHander(IWindow<SDL2.SDL.SDL_Event> w, SDLCS.SDL_Event e)
+        {
+            SDL2Helper.EventHandler(e);
         }
 
         private void RenderDrawData(ImDrawDataPtr draw_data)
@@ -130,8 +141,8 @@ namespace ImGuiExt {
                         SDLCS.SDL_RenderSetClipRect(Renderer, ref r);
 
                         IntPtr xy_ptr = IntPtr.Add(vtx_buffer, (int)pcmd.VtxOffset);
-                        IntPtr uv_ptr = IntPtr.Add(vtx_buffer, (int)pcmd.VtxOffset + Marshal.SizeOf<Vector2>());
-                        IntPtr col_ptr = IntPtr.Add(vtx_buffer, (int)pcmd.VtxOffset + Marshal.SizeOf<Vector2>() * 2);
+                        IntPtr uv_ptr = IntPtr.Add(vtx_buffer, (int)pcmd.VtxOffset + Marshal.OffsetOf<ImDrawVert>("uv").ToInt32());
+                        IntPtr col_ptr = IntPtr.Add(vtx_buffer, (int)pcmd.VtxOffset + Marshal.OffsetOf<ImDrawVert>("col").ToInt32());
 
                         int vtx_size = Marshal.SizeOf<ImDrawVert>();
                         int res = SDLCS.SDL_RenderGeometryRaw(Renderer, pcmd.GetTexID(),
@@ -140,13 +151,10 @@ namespace ImGuiExt {
                             (IntPtr)uv_ptr, vtx_size,
                             cmd_list.VtxBuffer.Size - (int)pcmd.VtxOffset,
                             IntPtr.Add(idx_buffer, (int)pcmd.IdxOffset),
-                            cmd_list.IdxBuffer.Size - (int)pcmd.IdxOffset,
+                            (int)pcmd.ElemCount,
                             Marshal.SizeOf<ushort>()
                         );
 
-                        if(res != 0) {
-                            var ss = SDLCS.SDL_GetError();
-                        }
                     }
                 }
             }
@@ -156,9 +164,5 @@ namespace ImGuiExt {
             SDLCS.SDL_RenderSetClipRect(Renderer, ref old_ClipRect);
         }
 
-        internal override void OnEventHander(IWindow<SDL2.SDL.SDL_Event> w, SDLCS.SDL_Event e)
-        {
-            SDL2Helper.EventHandler(e);
-        }
     }
 }

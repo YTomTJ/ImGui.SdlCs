@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using ImGuiExt;
-using static SDL2.SDL;
 
 namespace ImGuiNET {
     unsafe class Program {
@@ -11,9 +10,9 @@ namespace ImGuiNET {
 
             public TestWindow() : base(Mode.Layout)
             {
-                var io = ImGui.GetIO();
-                var fonts = io.Fonts;
-                FontCJK = fonts.AddFontFromFileTTF("NotoSansMonoCJKsc-Bold.otf", 20, null, fonts.GetGlyphRangesChineseFull());
+                //var io = ImGui.GetIO();
+                //var fonts = io.Fonts;
+                //FontCJK = fonts.AddFontFromFileTTF("NotoSansMonoCJKsc-Bold.otf", 20, null, fonts.GetGlyphRangesChineseFull());
 
                 BackgroundColor = new Vector4(0.4f, 0.5f, 0.6f, 1.0f);
 
@@ -25,6 +24,7 @@ namespace ImGuiNET {
                 //    SDL_GetWindowWMInfo(Wnd.Window, ref wminfo);
                 //    viewport.PlatformHandleRaw = wminfo.info.win.window;
                 //};
+
                 mAction = delegate () {
                     //ImGui.PushFont(FontCJK);
                     ImGui.ShowDemoWindow();
