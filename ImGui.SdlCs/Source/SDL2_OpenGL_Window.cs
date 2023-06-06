@@ -45,7 +45,6 @@ namespace ImGuiExt {
             ImGuiIOPtr io = ImGui.GetIO();
             // Build texture atlas
             io.Fonts.GetTexDataAsAlpha8(out byte* pixels, out int width, out int height);
-            io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
             int lastTexture;
             GL.GetIntegerv(GL.GlEnum.GL_TEXTURE_BINDING_2D, out lastTexture);

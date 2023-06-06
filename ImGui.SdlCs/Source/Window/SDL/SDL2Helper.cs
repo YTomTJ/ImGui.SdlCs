@@ -47,7 +47,6 @@ namespace ImGuiExt {
             IsInitialized = true;
 
             ImGuiIOPtr io = ImGui.GetIO();
-
             io.KeyMap[(int)ImGuiKey.Tab] = (int)SDLCS.SDL_Keycode.SDLK_TAB;
             io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)SDLCS.SDL_Scancode.SDL_SCANCODE_LEFT;
             io.KeyMap[(int)ImGuiKey.RightArrow] = (int)SDLCS.SDL_Scancode.SDL_SCANCODE_RIGHT;
@@ -68,7 +67,15 @@ namespace ImGuiExt {
             io.KeyMap[(int)ImGuiKey.Y] = (int)SDLCS.SDL_Keycode.SDLK_y;
             io.KeyMap[(int)ImGuiKey.Z] = (int)SDLCS.SDL_Keycode.SDLK_z;
 
+            io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
             io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+
+            //io.SetClipboardTextFn = SDL2Helper.SetClipboardText;
+            //io.GetClipboardTextFn = SDL2Helper.GetClipboardText;
+            //io.ClipboardUserData = null;
+            //io.SetPlatformImeDataFn = SDL2Helper.SetPlatformImeData;
+
+            io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
             // If no font added, add default font.
             if(io.Fonts.Fonts.Size == 0)

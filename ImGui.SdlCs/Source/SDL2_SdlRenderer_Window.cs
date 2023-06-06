@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using ImGuiExt.OpenGL;
 using ImGuiExt.SDL;
 using ImGuiNET;
+using static SDL2.SDL;
 using SDLCS = SDL2.SDL;
 
 namespace ImGuiExt {
@@ -16,31 +18,53 @@ namespace ImGuiExt {
 
         public SDL2_SdlRenderer_Window(string title = "SDL2_SdlRenderer_Window", int width = 1280, int height = 760)
         {
-            SDLCS.SDL_Init(SDLCS.SDL_INIT_EVERYTHING);
-
-            var flags = SDLCS.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDLCS.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI | SDLCS.SDL_WindowFlags.SDL_WINDOW_SHOWN;
+            var flags = SDLCS.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDLCS.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
             Wnd = new SDL2Window(title, width, height, flags);
 
             // Create SDL_Renderer graphics context
             Renderer = SDLCS.SDL_CreateRenderer(Wnd.Window, -1, SDLCS.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC | SDLCS.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
+            if(Renderer == IntPtr.Zero) {
+                throw new Exception("Error creating SDL_Renderer!");
+            }
 
             ImGui.CreateContext();
             SDL2Helper.Initialize();
+
+            var fonts = ImGui.GetIO().Fonts;
+            unsafe {
+                fonts.GetTexDataAsRGBA32(out byte* pixelData, out int texwidth, out int texheight);
+                fonts.TexID = LoadTexture((IntPtr)pixelData, texwidth, texheight);
+                fonts.ClearTexData();
+            }
+
             base.Initialize();
+        }
+
+        private IntPtr LoadTexture(IntPtr pixelData, int width, int height)
+        {
+            var texture = SDL_CreateTexture(Renderer, SDL_PIXELFORMAT_ABGR8888, 0, width, height);
+            SDL_Rect rect = new SDL_Rect {
+                x = 0,
+                y = 0,
+                w = width,
+                h = height,
+            };
+            SDL_UpdateTexture(texture, ref rect, pixelData, 4 * width);
+            SDL_SetTextureBlendMode(texture, SDL_BlendMode.SDL_BLENDMODE_BLEND);
+            return texture;
         }
 
         internal override unsafe void Create()
         {
-            ImGuiIOPtr io = ImGui.GetIO();
-
-            //if(io.BackendRendererUserData == IntPtr.Zero) {
-            //    throw new Exception("Already initialized a renderer backend!");
-            //}
-            if(Renderer == IntPtr.Zero) {
-                throw new Exception("SDL_Renderer not initialized!");
+            // Setup display size (every frame to accommodate for window resizing)
+            SDL_GetWindowSize(Wnd.Window, out int w, out int h);
+            if((SDL_GetWindowFlags(Wnd.Window) & (uint)SDLCS.SDL_WindowFlags.SDL_WINDOW_MINIMIZED) > 0) {
+                w = h = 0;
             }
-
-            io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
+            if(Renderer != IntPtr.Zero)
+                SDL_GetRendererOutputSize(Renderer, out int display_w, out int display_h);
+            else
+                SDL_GL_GetDrawableSize(Wnd.Window, out int display_w, out int display_h);
         }
 
         internal override void Render()
@@ -110,14 +134,15 @@ namespace ImGuiExt {
                         IntPtr col_ptr = IntPtr.Add(vtx_buffer, (int)pcmd.VtxOffset + Marshal.SizeOf<Vector2>() * 2);
 
                         int vtx_size = Marshal.SizeOf<ImDrawVert>();
-                        int res = SDL_RenderGeometryRaw(Renderer, pcmd.GetTexID(),
+                        int res = SDLCS.SDL_RenderGeometryRaw(Renderer, pcmd.GetTexID(),
                             (IntPtr)xy_ptr, vtx_size,
                             (IntPtr)col_ptr, vtx_size,
                             (IntPtr)uv_ptr, vtx_size,
                             cmd_list.VtxBuffer.Size - (int)pcmd.VtxOffset,
                             IntPtr.Add(idx_buffer, (int)pcmd.IdxOffset),
                             cmd_list.IdxBuffer.Size - (int)pcmd.IdxOffset,
-                            Marshal.SizeOf<ushort>());
+                            Marshal.SizeOf<ushort>()
+                        );
 
                         if(res != 0) {
                             var ss = SDLCS.SDL_GetError();
@@ -135,21 +160,5 @@ namespace ImGuiExt {
         {
             SDL2Helper.EventHandler(e);
         }
-
-        [DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SDL_RenderGeometryRaw(
-            IntPtr renderer,
-            IntPtr texture,
-            IntPtr xy,
-            int xy_stride,
-            IntPtr color,
-            int color_stride,
-            IntPtr uv,
-            int uv_stride,
-            int num_vertices,
-            IntPtr indices,
-            int num_indices,
-            int size_indices
-        );
     }
 }

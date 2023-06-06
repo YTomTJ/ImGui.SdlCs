@@ -17,16 +17,16 @@ namespace ImGuiNET {
 
                 BackgroundColor = new Vector4(0.4f, 0.5f, 0.6f, 1.0f);
 
-                OnWindowStart += (w) => {
-                    // Reference: https://github.com/ocornut/imgui/issues/307
-                    // To input using Microsoft IME, give ImGui the hwnd of your application
-                    var viewport = ImGui.GetMainViewport();
-                    var wminfo = new SDL_SysWMinfo();
-                    SDL_GetWindowWMInfo(Wnd.Window, ref wminfo);
-                    viewport.PlatformHandleRaw = wminfo.info.win.window;
-                };
+                //OnWindowStart += (w) => {
+                //    // Reference: https://github.com/ocornut/imgui/issues/307
+                //    // To input using Microsoft IME, give ImGui the hwnd of your application
+                //    var viewport = ImGui.GetMainViewport();
+                //    var wminfo = new SDL_SysWMinfo();
+                //    SDL_GetWindowWMInfo(Wnd.Window, ref wminfo);
+                //    viewport.PlatformHandleRaw = wminfo.info.win.window;
+                //};
                 mAction = delegate () {
-                    ImGui.PushFont(FontCJK);
+                    //ImGui.PushFont(FontCJK);
                     ImGui.ShowDemoWindow();
 
                     // Code from imgui showdemowindow.
@@ -41,7 +41,7 @@ namespace ImGuiNET {
                         ImGui.InputText("UTF-8 input", ref buf, 32);
                     }
 
-                    ImGui.PopFont();
+                    //ImGui.PopFont();
                     return true;
                 };
             }

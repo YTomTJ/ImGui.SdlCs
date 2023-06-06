@@ -60,8 +60,6 @@ namespace ImGuiExt.SDL {
 
         public Action<IWindow<SDLCS.SDL_Event>, SDLCS.SDL_Event> OnEvent { get; set; }
 
-        
-
         internal SDL2Window(string title, int width, int height, SDLCS.SDL_WindowFlags flags)
         {
             SDLCS.SDL_Init(SDLCS.SDL_INIT_EVERYTHING);
