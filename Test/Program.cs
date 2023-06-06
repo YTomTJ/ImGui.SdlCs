@@ -5,7 +5,7 @@ using static SDL2.SDL;
 namespace ImGuiNET {
     unsafe class Program {
 
-        public class TestWindow : ImWindowExt {
+        public class TestWindow : SDL2_OpenGL_Window_Ext {
 
             ImFontPtr FontCJK;
 
@@ -22,7 +22,7 @@ namespace ImGuiNET {
                     // To input using Microsoft IME, give ImGui the hwnd of your application
                     var viewport = ImGui.GetMainViewport();
                     var wminfo = new SDL_SysWMinfo();
-                    SDL_GetWindowWMInfo(Window, ref wminfo);
+                    SDL_GetWindowWMInfo(Wnd.Window, ref wminfo);
                     viewport.PlatformHandleRaw = wminfo.info.win.window;
                 };
                 mAction = delegate () {

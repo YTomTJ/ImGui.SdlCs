@@ -4,10 +4,11 @@ using System.Numerics;
 namespace ImGuiExt {
 
     /// <summary>
-    /// Extended ImWindowBase with easy interface.
+    /// Extended SDL2_OpenGL_Window with easy interface.
     /// </summary>
-    public class ImWindowExt : ImWindowBase {
-        private const string mTitle = "ImGuiNet.SdlCs ImWindowExt Instance";
+    public class SDL2_OpenGL_Window_Ext : SDL2_OpenGL_Window {
+
+        private const string mTitle = "ImGuiNet SDL2_OpenGL_Window Instance";
         public const int mWidth = 1280;
         public const int mHeigt = 720;
 
@@ -27,24 +28,29 @@ namespace ImGuiExt {
 
         public ImGuiWindowFlags mFlags = ImGuiWindowFlags.None;
 
-        public ImWindowExt(Mode mode)
-            : this(mode, mTitle, null, mWidth, mHeigt, ImGuiWindowFlags.None) {
+        public SDL2_OpenGL_Window_Ext(Mode mode)
+            : this(mode, mTitle, null, mWidth, mHeigt, ImGuiWindowFlags.None)
+        {
         }
 
-        public ImWindowExt(Mode mode, string title)
-            : this(mode, title, null, mWidth, mHeigt, ImGuiWindowFlags.None) {
+        public SDL2_OpenGL_Window_Ext(Mode mode, string title)
+            : this(mode, title, null, mWidth, mHeigt, ImGuiWindowFlags.None)
+        {
         }
 
-        public ImWindowExt(Mode mode, LayoutUpdateMethod action)
-            : this(mode, mTitle, action, mWidth, mHeigt, ImGuiWindowFlags.None) {
+        public SDL2_OpenGL_Window_Ext(Mode mode, LayoutUpdateMethod action)
+            : this(mode, mTitle, action, mWidth, mHeigt, ImGuiWindowFlags.None)
+        {
         }
 
-        public ImWindowExt(Mode mode, string title, LayoutUpdateMethod action)
-            : this(mode, title, action, mWidth, mHeigt, ImGuiWindowFlags.None) {
+        public SDL2_OpenGL_Window_Ext(Mode mode, string title, LayoutUpdateMethod action)
+            : this(mode, title, action, mWidth, mHeigt, ImGuiWindowFlags.None)
+        {
         }
 
-        public ImWindowExt(Mode mode, string title, ImGuiWindowFlags flags)
-            : this(mode, title, null, mWidth, mHeigt, flags) {
+        public SDL2_OpenGL_Window_Ext(Mode mode, string title, ImGuiWindowFlags flags)
+            : this(mode, title, null, mWidth, mHeigt, flags)
+        {
         }
 
         /// <summary>
@@ -56,36 +62,38 @@ namespace ImGuiExt {
         /// <param name="width">Window width</param>
         /// <param name="height">Window height</param>
         /// <param name="flags">Additional flags when mode is WindowMode.Single</param>
-        public ImWindowExt(Mode mode, string title, LayoutUpdateMethod action, int width, int height, ImGuiWindowFlags flags)
-            : base(title, width, height) {
+        public SDL2_OpenGL_Window_Ext(Mode mode, string title, LayoutUpdateMethod action, int width, int height, ImGuiWindowFlags flags)
+            : base(title, width, height)
+        {
             mMode = mode;
             mAction = action;
             mFlags = flags;
 
-            OnLayoutUpdate += UpdateLayout;
+            OnLayoutUpdate += ExtUpdateLayout;
         }
 
-        private bool UpdateLayout() {
+        private bool ExtUpdateLayout()
+        {
             // Overlay
-            if (mMode == Mode.Layout) {
+            if(mMode == Mode.Layout) {
                 ImGui.SetNextWindowPos(new Vector2(0, 0));
-                ImGui.SetNextWindowSize(Size);
+                ImGui.SetNextWindowSize(Wnd.Size);
                 ImGui.SetNextWindowBgAlpha(0);
                 ImGui.Begin("Overlay", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoBringToFrontOnFocus);
                 ImGui.Text(string.Format("FPS:{0:0.00}", ImGui.GetIO().Framerate));
                 ImGui.SetCursorPos(new Vector2(0, 0));
-            } else if (mMode == Mode.Single) {
+            } else if(mMode == Mode.Single) {
                 ImGui.SetNextWindowPos(new Vector2(0, 0));
-                ImGui.SetNextWindowSize(Size);
+                ImGui.SetNextWindowSize(Wnd.Size);
                 ImGui.SetNextWindowBgAlpha(0);
                 ImGui.Begin("Overlay", mFlags | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar);
             }
 
-            if (mAction != null && !mAction()) {
-                Exit();
+            if(mAction != null && !mAction()) {
+                Wnd.Exit();
             }
 
-            if (mMode != Mode.Normal) {
+            if(mMode != Mode.Normal) {
                 ImGui.End();
             }
 

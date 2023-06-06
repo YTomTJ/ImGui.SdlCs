@@ -67,7 +67,6 @@ namespace ImGuiExt.SDL {
 
         internal SDL2Window(string title, int width, int height, SDLCS.SDL_WindowFlags flags)
         {
-            SDL2Helper.Initialize();
             if(Window != IntPtr.Zero)
                 throw new InvalidOperationException("SDL2Window already initialized, Dispose() first before reusing!");
             Window = SDLCS.SDL_CreateWindow(title, SDLCS.SDL_WINDOWPOS_CENTERED, SDLCS.SDL_WINDOWPOS_CENTERED, width, height, flags);
