@@ -5,7 +5,7 @@ using static SDL2.SDL;
 namespace ImGuiNET {
     unsafe class Program {
 
-        public class TestWindow : SDL2_OpenGL_Window_Ext {
+        public class TestWindow : SDL2_SdlRenderer_Window_Ext {
 
             ImFontPtr FontCJK;
 

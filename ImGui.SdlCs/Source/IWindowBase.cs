@@ -17,9 +17,7 @@ namespace ImGuiExt {
 
         internal abstract void Render();
 
-        internal abstract void OnLoopHandler(SDL2Window window);
-
-        internal abstract void OnEventHander(SDL2Window window, SDLCS.SDL_Event e);
+        internal abstract void OnEventHander(IWindow<E> window, E e);
 
         //---------------------------------------------------------------------
 
@@ -32,7 +30,33 @@ namespace ImGuiExt {
             set;
         } = defaultClearColor;
 
+        public void Run()
+        {
+            Wnd.Run();
+        }
+
         //---------------------------------------------------------------------
+
+        internal void Initialize()
+        {
+            Wnd.OnStart += OnStartHander;
+            Wnd.OnLoop += OnLoopHandler;
+            Wnd.OnEvent += OnEventHander;
+            Wnd.OnExit += OnExitHandler;
+        }
+
+        internal void UpdateLayout()
+        {
+            if(OnLayoutUpdate == null) {
+                ImGui.Text($"Create a new class inheriting {GetType().FullName}, overriding {nameof(UpdateLayout)}!");
+            } else {
+                foreach(LayoutUpdateMethod del in OnLayoutUpdate.GetInvocationList()) {
+                    if(!del()) {
+                        OnLayoutUpdate -= del;
+                    }
+                }
+            }
+        }
 
         internal double g_Time = 0.0f;
         internal int g_FontTexture = 0;
@@ -50,33 +74,24 @@ namespace ImGuiExt {
         public delegate void WindowExitMethod(IWindowBase<E> window);
         public event WindowExitMethod OnWindowExit;
 
-        public void Run()
-        {
-            Wnd.Run();
-        }
-
-        internal void OnStartHander(SDL2Window window)
+        private void OnStartHander(IWindow<E> window)
         {
             Create();
             OnWindowStart?.Invoke(this);
         }
 
-        internal void OnExitHandler(SDL2Window window)
+        private void OnExitHandler(IWindow<E> window)
         {
             OnWindowExit?.Invoke(this);
         }
 
-        internal void UpdateLayout()
+        private void OnLoopHandler(IWindow<E> window)
         {
-            if(OnLayoutUpdate == null) {
-                ImGui.Text($"Create a new class inheriting {GetType().FullName}, overriding {nameof(UpdateLayout)}!");
-            } else {
-                foreach(LayoutUpdateMethod del in OnLayoutUpdate.GetInvocationList()) {
-                    if(!del()) {
-                        OnLayoutUpdate -= del;
-                    }
-                }
-            }
+            SDL2Helper.NewFrame(Wnd.Size, Vector2.One, ref g_Time);
+            UpdateLayout();
+            ImGui.Render();
+
+            Render();
         }
 
         ~IWindowBase()

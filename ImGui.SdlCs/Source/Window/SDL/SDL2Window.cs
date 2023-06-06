@@ -12,11 +12,6 @@ namespace ImGuiExt.SDL {
             private set;
         }
 
-        public IntPtr Context {
-            get;
-            private set;
-        }
-
         public bool IsAlive {
             get;
             private set;
@@ -57,24 +52,22 @@ namespace ImGuiExt.SDL {
             }
         }
 
-        public Action<SDL2Window> OnStart { get; set; }
+        public Action<IWindow<SDLCS.SDL_Event>> OnStart { get; set; }
 
-        public Action<SDL2Window> OnLoop { get; set; }
+        public Action<IWindow<SDLCS.SDL_Event>> OnLoop { get; set; }
 
-        public Action<SDL2Window> OnExit { get; set; }
+        public Action<IWindow<SDLCS.SDL_Event>> OnExit { get; set; }
 
-        public Action<SDL2Window, SDLCS.SDL_Event> OnEvent { get; set; }
+        public Action<IWindow<SDLCS.SDL_Event>, SDLCS.SDL_Event> OnEvent { get; set; }
+
+        
 
         internal SDL2Window(string title, int width, int height, SDLCS.SDL_WindowFlags flags)
         {
+            SDLCS.SDL_Init(SDLCS.SDL_INIT_EVERYTHING);
             if(Window != IntPtr.Zero)
                 throw new InvalidOperationException("SDL2Window already initialized, Dispose() first before reusing!");
             Window = SDLCS.SDL_CreateWindow(title, SDLCS.SDL_WINDOWPOS_CENTERED, SDLCS.SDL_WINDOWPOS_CENTERED, width, height, flags);
-            if((flags & SDLCS.SDL_WindowFlags.SDL_WINDOW_OPENGL) == SDLCS.SDL_WindowFlags.SDL_WINDOW_OPENGL) {
-                Context = SDLCS.SDL_GL_CreateContext(Window);
-                SDLCS.SDL_GL_MakeCurrent(Window, Context);
-                SDLCS.SDL_GL_SetSwapInterval(1);  // Enable vsync
-            }
         }
 
         public void Show()

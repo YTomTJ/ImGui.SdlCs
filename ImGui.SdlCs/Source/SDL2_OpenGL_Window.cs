@@ -19,34 +19,32 @@ namespace ImGuiExt {
         private static readonly int majorVersion = 3;
         private static readonly int minorVersion = 0;
 
+        private IntPtr Context { get; set; }
+
         public SDL2_OpenGL_Window(string title = "SDL2_OpenGL_Window", int width = 1280, int height = 760)
         {
-            SDLCS.SDL_Init(SDLCS.SDL_INIT_EVERYTHING);
+            var flags = SDLCS.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDLCS.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDLCS.SDL_WindowFlags.SDL_WINDOW_SHOWN;
+            Wnd = new SDL2Window(title, width, height, flags);
+
             SDLCS.SDL_GL_SetAttribute(SDLCS.SDL_GLattr.SDL_GL_DOUBLEBUFFER, doubleBuffer);
             SDLCS.SDL_GL_SetAttribute(SDLCS.SDL_GLattr.SDL_GL_DEPTH_SIZE, depthSize);
             SDLCS.SDL_GL_SetAttribute(SDLCS.SDL_GLattr.SDL_GL_STENCIL_SIZE, stencilSize);
             SDLCS.SDL_GL_SetAttribute(SDLCS.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion);
             SDLCS.SDL_GL_SetAttribute(SDLCS.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, minorVersion);
-
-            var flags = SDLCS.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDLCS.SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDLCS.SDL_WindowFlags.SDL_WINDOW_SHOWN;
-            Wnd = new SDL2Window(title, width, height, flags);
+            Context = SDLCS.SDL_GL_CreateContext(Wnd.Window);
+            SDLCS.SDL_GL_MakeCurrent(Wnd.Window, Context);
+            SDLCS.SDL_GL_SetSwapInterval(1);  // Enable vsync
 
             ImGui.CreateContext();
             SDL2Helper.Initialize();
-
-            Wnd.OnStart += OnStartHander;
-            Wnd.OnLoop += OnLoopHandler;
-            Wnd.OnEvent += OnEventHander;
-            Wnd.OnExit += OnExitHandler;
+            base.Initialize();
         }
 
         internal override unsafe void Create()
         {
             ImGuiIOPtr io = ImGui.GetIO();
             // Build texture atlas
-            //ImFontTextureData texData = ;
             io.Fonts.GetTexDataAsAlpha8(out byte* pixels, out int width, out int height);
-
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
             int lastTexture;
@@ -78,22 +76,14 @@ namespace ImGuiExt {
 
         internal override void Render()
         {
-            SDL2Helper.NewFrame(Wnd.Size, Vector2.One, ref g_Time);
-            UpdateLayout();
-            ImGui.Render();
-            if(ImGui.GetIO()._UnusedPadding == IntPtr.Zero)
-                GLHelper.RenderDrawData(ImGui.GetDrawData(), (int)Math.Round(Wnd.Size.X), (int)Math.Round(Wnd.Size.Y));
-        }
-
-        internal override void OnLoopHandler(SDL2Window window)
-        {
             GL.ClearColor(BackgroundColor.X, BackgroundColor.Y, BackgroundColor.Z, BackgroundColor.W);
             GL.Clear(GL.GlEnum.GL_COLOR_BUFFER_BIT);
-            Render();
+            if(ImGui.GetIO()._UnusedPadding == IntPtr.Zero)
+                GLHelper.RenderDrawData(ImGui.GetDrawData(), (int)Math.Round(Wnd.Size.X), (int)Math.Round(Wnd.Size.Y));
             Wnd.Swap();
         }
 
-        internal override void OnEventHander(SDL2Window window, SDLCS.SDL_Event e)
+        internal override void OnEventHander(IWindow<SDL2.SDL.SDL_Event> w, SDLCS.SDL_Event e)
         {
             SDL2Helper.EventHandler(e);
         }

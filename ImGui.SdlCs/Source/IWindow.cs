@@ -8,8 +8,6 @@ namespace ImGuiExt.SDL {
 
         public IntPtr Window { get; }
 
-        public IntPtr Context { get; }
-
         public bool IsAlive { get; }
 
         public bool IsVisible { get; }
@@ -22,13 +20,13 @@ namespace ImGuiExt.SDL {
 
         public Vector2 Size { get; set; }
 
-        public Action<SDL2Window> OnStart { get; set; }
+        public Action<IWindow<Event>> OnStart { get; set; }
 
-        public Action<SDL2Window> OnLoop { get; set; }
+        public Action<IWindow<Event>> OnLoop { get; set; }
 
-        public Action<SDL2Window> OnExit { get; set; }
+        public Action<IWindow<Event>> OnExit { get; set; }
 
-        public Action<SDL2Window, Event> OnEvent { get; set; }
+        public Action<IWindow<Event>, Event> OnEvent { get; set; }
 
         public void Show();
 
